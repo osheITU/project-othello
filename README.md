@@ -6,5 +6,6 @@
 - Rasmus Tornvig Nordquist (ratn@itu.dk)
 
 # How to run
+__Prerequisites__: working java installation
 1. From the `src` directory, run `javac *.java -d class` to compile
 2. TODO
