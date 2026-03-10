@@ -1,2 +1,10 @@
-# project-othello
-Introduction to AI course project 1
+# Introduction to AI project 1: Othello
+- Andreas John-Holaus (andjo@itu.dk)
+- Carl Christian David Dam (cacd@itu.dk)
+- Oliver Flinck Sheye (oshe@itu.dk)
+- Philip Bay Quorning (phqu@itu.dk)
+- Rasmus Tornvig Nordquist (ratn@itu.dk)
+
+# How to run
+1. From the `src` directory, run `javac *.java -d class` to compile
+2. TODO
