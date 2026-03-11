@@ -7,6 +7,11 @@
 
 # How to run
 __Prerequisites__: working java installation
+
+### Method 1 (quick start)
+1. From the root directory, run `run` (or `run.bat`)
+
+### Method 2 (more control)
 1. From the root directory, run `javac *.java` to compile
 2. Then, run `java Othello <player_1> <player_2> <board_size>`
 
