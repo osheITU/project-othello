@@ -8,7 +8,7 @@
 # How to run
 __Prerequisites__: working java installation
 
-### Method 1 (quick start)
+### Method 1 (quick start, preset human-DumAI game)
 1. From the root directory, run `run` (or `run.bat`)
 
 ### Method 2 (more control)

@@ -15,8 +15,8 @@ public class GreedyAI implements IOthelloAI {
 
     /**
      * <h4>Shamelessly stolen from GameState (added GameState parameter).</h4>
-     * Checks how many tokens of the opponent the player can capture in the direction given by deltaX and deltaY
-     * if the player puts a token at the given position.
+     * Checks how many tokens of the opponent the player can capture in the direction given
+     * by deltaX and deltaY if the player puts a token at the given position.
      * @param s A state of a game.
      * @param p A position on the board.
      * @param deltaX The step to be taken in the x-direction. Should be -1 (left), 0 (none), or 1 (right).

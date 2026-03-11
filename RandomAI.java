@@ -10,7 +10,7 @@ import java.util.Random;
 public class RandomAI implements IOthelloAI {
 
     /**
-	 * Returns a random legal move
+	 * @return A random legal move.
 	 */
     @Override
     public Position decideMove(GameState s) {
