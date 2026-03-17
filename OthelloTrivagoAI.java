@@ -48,10 +48,14 @@ public class OthelloTrivagoAI implements IOthelloAI {
      * @return The resulting state.
      */
     private GameState result(GameState state, Position action) {
-        int[][] board = state.getBoard();
-        int player = state.getPlayerInTurn();
+        int[][] oldBoard = state.getBoard();
+        int[][] newBoard = new int[oldBoard.length][];
 
-        GameState newState = new GameState(board, player);
+        for (int i = 0; i < oldBoard.length; i++) {
+            newBoard[i] = oldBoard[i].clone();
+        }
+
+        GameState newState = new GameState(newBoard, state.getPlayerInTurn());
         newState.insertToken(action);
 
         return newState;
@@ -65,23 +69,62 @@ public class OthelloTrivagoAI implements IOthelloAI {
      * @return An estimate of the expected utility of <code>state</code> to <code>player</code>. 
      */
     private UtilMoveDTO eval(GameState state, int player) {
+        // Check if BOTH players have no moves
+        if (state.legalMoves().isEmpty()) {
+            int[][] oldBoard = state.getBoard();
+            int[][] newBoard = new int[oldBoard.length][];
+
+            for (int i = 0; i < oldBoard.length; i++) {
+                newBoard[i] = oldBoard[i].clone();
+            }
+
+            GameState other = new GameState(newBoard, state.getPlayerInTurn());
+            other.changePlayer();
+
+            if (other.legalMoves().isEmpty()) {
+                int[] tokens = state.countTokens();
+
+                int my = (player == 1) ? tokens[0] : tokens[1];
+                int opp = (player == 1) ? tokens[1] : tokens[0];
+
+                if (my > opp) return new UtilMoveDTO(1000f, null);
+                if (my < opp) return new UtilMoveDTO(-1000f, null);
+                return new UtilMoveDTO(0f, null);
+            }
+        }
+
+        // Normal heuristic evaluation
         int[] tokens = state.countTokens();
-        // tokens[0] = black (player 1), tokens[1] = white (player 2)
+
         int my_discs  = (player == 1) ? tokens[0] : tokens[1];
         int opp_discs = (player == 1) ? tokens[1] : tokens[0];
+
         float disc_diff = (my_discs + opp_discs) > 0
                 ? (float)(my_discs - opp_discs) / (my_discs + opp_discs)
                 : 0f;
 
-        int my_moves  = state.legalMoves().size();
-        state.changePlayer();
-        int opp_moves = state.legalMoves().size();
-        state.changePlayer();
+        // Deep copy board for mobility
+        int[][] oldBoard = state.getBoard();
+        int[][] boardCopy1 = new int[oldBoard.length][];
+        int[][] boardCopy2 = new int[oldBoard.length][];
+
+        for (int i = 0; i < oldBoard.length; i++) {
+            boardCopy1[i] = oldBoard[i].clone();
+            boardCopy2[i] = oldBoard[i].clone();
+        }
+
+        GameState myState = new GameState(boardCopy1, player);
+        int my_moves = myState.legalMoves().size();
+
+        GameState oppState = new GameState(boardCopy2, (player == 1 ? 2 : 1));
+        int opp_moves = oppState.legalMoves().size();
+
         float mobility = (my_moves + opp_moves) > 0
                 ? (float)(my_moves - opp_moves) / (my_moves + opp_moves)
                 : 0f;
 
         float game_value = 0.5f * disc_diff + 0.5f * mobility;
+
         return new UtilMoveDTO(game_value, null);
     }
 
@@ -93,16 +136,15 @@ public class OthelloTrivagoAI implements IOthelloAI {
      * @param depth The depth of the current search.
      * @return The estimated best move for player 1 (MAX/black).
      */
-    private UtilMoveDTO maxValue(GameState state, float alpha, float beta, int depth) {
-        if (isCutoff(state, depth)) return eval(state, 1);
-        
+    private UtilMoveDTO maxValue(GameState state, float alpha, float beta, int depth, int player) {
+        if (isCutoff(state, depth)) return eval(state, player);
+
         float v = Float.NEGATIVE_INFINITY;
         Position move = new Position(-1, -1);
 
         for (Position a : state.legalMoves()) {
-            UtilMoveDTO dto = minValue(result(state, a), alpha, beta, depth + 1);
+            UtilMoveDTO dto = minValue(result(state, a), alpha, beta, depth + 1, player);
             float v2 = dto.util();
-            // Position a2 = dto.move(); // Bliver ikke brugt 💔
 
             if (v2 > v) {
                 v = v2;
@@ -124,15 +166,14 @@ public class OthelloTrivagoAI implements IOthelloAI {
      * @param depth The depth of the current search.
      * @return The estimated best move for player 2 (MIN/white).
      */
-    private UtilMoveDTO minValue(GameState state, float alpha, float beta, int depth) {
-        if (isCutoff(state, depth)) return eval(state, 1);
+    private UtilMoveDTO minValue(GameState state, float alpha, float beta, int depth, int player) {
+        if (isCutoff(state, depth)) return eval(state, player);
 
-        float v = Float.NEGATIVE_INFINITY;
+        float v = Float.POSITIVE_INFINITY;
         Position move = new Position(-1, -1);
 
         for (Position a : state.legalMoves()) {
-            UtilMoveDTO dto = maxValue(result(state, a), alpha, beta, depth + 1);
-            float v2 = dto.util();
+            UtilMoveDTO dto = maxValue(result(state, a), alpha, beta, depth + 1, player);            float v2 = dto.util();
             // Position a2 = dto.move(); // Bliver heller aldrig brugt 😭
 
             if (v2 < v) {
@@ -161,8 +202,8 @@ public class OthelloTrivagoAI implements IOthelloAI {
         UtilMoveDTO dto = new UtilMoveDTO(0, new Position(-1, -1));
         
         switch (player) {
-            case 1 -> dto = maxValue(s, negInf, posInf, 0);
-            case 2 -> dto = minValue(s, negInf, posInf, 0);
+            case 1 -> dto = maxValue(s, negInf, posInf, 0, player);
+            case 2 -> dto = minValue(s, negInf, posInf, 0, player);
             default -> throw new IllegalStateException(
                 "\"currentPlayer\" evaluated to " + player +
                 "; should be either 1 (MAX/black) or 2 (MIN/white)"
