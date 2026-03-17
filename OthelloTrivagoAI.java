@@ -14,6 +14,8 @@ public class OthelloTrivagoAI implements IOthelloAI {
      * Data Transfer Object representing a tuple of a Utility-value and a Move.
      */
     private record UtilMoveDTO(float util, Position move) {}
+    private static final int MAX_DEPTH = 6;
+    private static final int MOBILITY_THRESHOLD = 8;
 
     /**
      * TODO IMPLEMENT (book, p. 204)
@@ -22,7 +24,21 @@ public class OthelloTrivagoAI implements IOthelloAI {
      * @return <code>true</code> if the current state is a cut-off point, <code>false</code> otherwise.
      */
     private boolean isCutoff(GameState state, int depth) {
-        throw new UnsupportedOperationException("Unimplemented method");
+        // Terminal state
+        if (state.legalMoves().isEmpty()) {
+            return true;
+        }
+        // Depth limit
+        if (depth >= MAX_DEPTH) {
+            return true;
+        }
+        // Heuristic adjustment
+        int mobility = state.legalMoves().size();
+        if (mobility > MOBILITY_THRESHOLD && depth >= MAX_DEPTH - 2) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -49,10 +65,24 @@ public class OthelloTrivagoAI implements IOthelloAI {
      * @return An estimate of the expected utility of <code>state</code> to <code>player</code>. 
      */
     private UtilMoveDTO eval(GameState state, int player) {
-        if (!List.of(1, 2).contains(player))
-            throw new IllegalArgumentException("\"player\" must be either 1 (MAX/black) or 2 (MIN/white)");
+        int[] tokens = state.countTokens();
+        // tokens[0] = black (player 1), tokens[1] = white (player 2)
+        int my_discs  = (player == 1) ? tokens[0] : tokens[1];
+        int opp_discs = (player == 1) ? tokens[1] : tokens[0];
+        float disc_diff = (my_discs + opp_discs) > 0
+                ? (float)(my_discs - opp_discs) / (my_discs + opp_discs)
+                : 0f;
 
-        throw new UnsupportedOperationException("Unimplemented method");
+        int my_moves  = state.legalMoves().size();
+        state.changePlayer();
+        int opp_moves = state.legalMoves().size();
+        state.changePlayer();
+        float mobility = (my_moves + opp_moves) > 0
+                ? (float)(my_moves - opp_moves) / (my_moves + opp_moves)
+                : 0f;
+
+        float game_value = 0.5f * disc_diff + 0.5f * mobility;
+        return new UtilMoveDTO(game_value, null);
     }
 
     /** 
