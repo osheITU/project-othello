@@ -84,8 +84,8 @@ public class OthelloTrivagoAI implements IOthelloAI {
                 int my = (player == 1) ? tokens[0] : tokens[1];
                 int opp = (player == 1) ? tokens[1] : tokens[0];
 
-                if (my > opp) return new UtilMoveDTO(1000f, null);
-                if (my < opp) return new UtilMoveDTO(-1000f, null);
+                if (my > opp) return new UtilMoveDTO(1f, null);
+                if (my < opp) return new UtilMoveDTO(-1f, null);
                 return new UtilMoveDTO(0f, null);
             }
         }
