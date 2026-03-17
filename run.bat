@@ -1,4 +1,4 @@
 javac *.java
-java Othello human DumAI 6
+java Othello human OthelloTrivagoAI 8
 erase *.class
 cls
