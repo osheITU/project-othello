@@ -15,6 +15,8 @@ __Prerequisites__: working java installation
 1. From the root directory, run `javac *.java` to compile
 2. Then, run `java Othello <player_1> <player_2> <board_size>`
 
-* player_1: `human`, `DumAI` or another implementation of IOthelloAI
-* player_2: `DumAI` or another implementation of IOthelloAI
-* board_size: an integer
+* player_1: `human`, or an implementation of IOthelloAI*
+* player_2: `OthelloTrivagoAI`, or another implementation of IOthelloAI*
+* board_size: an integer. 8 by default, if nothing is provided
+
+\* `OthelloTrivagoAI`, `DumAI`, `RandomAI` or `GreedyAI`

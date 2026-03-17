@@ -1,5 +1,3 @@
-import java.util.List;
-
 /**
  * Our IOthelloAI-implementation. Jesus take the wheel.
  * @author Andreas John-Holaus (andjo@itu.dk)
@@ -18,9 +16,9 @@ public class OthelloTrivagoAI implements IOthelloAI {
     private static final int MOBILITY_THRESHOLD = 8;
 
     /**
-     * TODO IMPLEMENT (book, p. 204)
      * Given a GameState, determine whether the current state is a cut-off point for the current search.
      * @param state A state of a game.
+     * @param depth the depth of the current search.
      * @return <code>true</code> if the current state is a cut-off point, <code>false</code> otherwise.
      */
     private boolean isCutoff(GameState state, int depth) {
@@ -62,7 +60,6 @@ public class OthelloTrivagoAI implements IOthelloAI {
     }
 
     /**
-     * TODO IMPLEMENT (book, p. 202)
      * Determine an estimate of the expected utility of a given state to a given player
      * @param state A state of a game.
      * @param player A player of the game. Value should be 1 (MAX/black) or 2 (MIN/white).
@@ -134,6 +131,7 @@ public class OthelloTrivagoAI implements IOthelloAI {
      * @param alpha The best estimated utility for player 1 (MAX/black) found so far.
      * @param beta The best estimated utility for player 2 (MIN/white) found so far.
      * @param depth The depth of the current search.
+     * @param player The player to whom the state is relevant.
      * @return The estimated best move for player 1 (MAX/black).
      */
     private UtilMoveDTO maxValue(GameState state, float alpha, float beta, int depth, int player) {
@@ -164,6 +162,7 @@ public class OthelloTrivagoAI implements IOthelloAI {
      * @param alpha The best estimated utility for player 1 (MAX/black) found so far.
      * @param beta The best estimated utility for player 2 (MIN/white) found so far.
      * @param depth The depth of the current search.
+     * @param player The player to whom the state is relevant.
      * @return The estimated best move for player 2 (MIN/white).
      */
     private UtilMoveDTO minValue(GameState state, float alpha, float beta, int depth, int player) {
